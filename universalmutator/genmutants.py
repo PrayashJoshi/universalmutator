@@ -1,12 +1,13 @@
 from __future__ import print_function
 from tabulate import tabulate
-
 import os
 import random
-from re import T
 import sys
 import shutil
 import subprocess
+import math
+import importlib.util
+import json
 
 import universalmutator.mutator as mutator
 
@@ -48,10 +49,7 @@ def checkCombyDeadCode(deadCodeLines, mutant):
 
 def cmdHandler(tmpMutantName, mutant, sourceFile, uniqueMutants):
     global cmd
-
     if "MUTANT" not in cmd:
-        # We asssume if the MUTANT isn't part of the command,
-        # we need to move it into place, before, e.g., make
         backupName = sourceFile + ".um.backup." + str(os.getpid())
         shutil.copy(sourceFile, backupName)
         shutil.copy(tmpMutantName, sourceFile)
@@ -64,10 +62,8 @@ def cmdHandler(tmpMutantName, mutant, sourceFile, uniqueMutants):
         else:
             return "INVALID"
     finally:
-        # If we moved the mutant in, restore original
         if "MUTANT" not in cmd:
             shutil.copy(backupName, sourceFile)
-
 
 def toGarbage(code):
     newCode = ""
@@ -80,6 +76,98 @@ def toGarbage(code):
             newCode += "Q"
     return newCode
 
+def find_package_resource(filename):
+    """Find a resource within the package directory structure"""
+    # First try relative to the current directory
+    if os.path.exists(filename):
+        return filename
+    
+    # Try to find it relative to the current file's directory
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    full_path = os.path.join(current_dir, filename)
+    if os.path.exists(full_path):
+        return full_path
+    
+    # Try finding it as an installed package resource
+    try:
+        spec = importlib.util.find_spec('universalmutator')
+        if spec and spec.origin:
+            package_dir = os.path.dirname(spec.origin)
+            full_path = os.path.join(package_dir, filename)
+            if os.path.exists(full_path):
+                return full_path
+    except (ImportError, AttributeError):
+        pass
+    
+    # Return the original as fallback
+    return filename
+
+def get_context_lines(source_lines, line_num, before=2, after=2):
+    """Get context lines before and after a mutation."""
+    start = max(0, line_num - before)
+    end = min(len(source_lines), line_num + after)
+    return "".join(source_lines[start:end])
+
+def extract_operator(code):
+    """Extract the operator from a code snippet."""
+    operators = ["+", "-", "*", "/", "%", "==", "!=", "<", ">", "<=", ">=", "||", "&&", "and", "or"]
+    for op in operators:
+        if op in code:
+            return op
+    return "UNK"
+
+def extract_file_info(source_file):
+    """Extract project and file information from source file path."""
+    parts = source_file.split('/')
+    
+    # For combined files, the project name is the base filename
+    project = parts[-1].split('.')[0]
+    
+    is_combined = False
+    for part in parts:
+        if part == "Combined":
+            is_combined = True
+            break
+        
+    file_info = parts[-1] if not is_combined else "Unknown"
+    
+    return project, file_info
+
+def create_mutation_record(mutant, mutant_id, group, quartile, source_file, source_lines, source_joined=None, is_comby=False):
+    """Create a structured record for a mutation."""
+    # Extract project and file info
+    project, file_info = extract_file_info(source_file)
+    
+    # Determine the line number and position
+    if is_comby:
+        line_num = mutant[3][0]
+        pos = mutant[3][0]
+        orig_code = source_joined[mutant[0][0]:mutant[0][1]] if source_joined else "UNKNOWN"
+    else:
+        line_num = mutant[0]
+        pos = 0
+        orig_code = source_lines[line_num - 1] if line_num <= len(source_lines) else "UNKNOWN"
+    
+    # Extract operator information
+    orig_op = extract_operator(orig_code)
+    new_op = extract_operator(mutant[1])
+    
+    # Create structured record
+    return {
+        "id": mutant_id,
+        "mutation_type": group.upper() if group else "UNK",
+        "quartile": quartile,
+        "project": project,
+        "file": file_info,
+        "line_number": line_num,
+        "position": pos,
+        "original_op": orig_op,
+        "new_op": new_op,
+        "original_code": orig_code.strip() if isinstance(orig_code, str) else str(orig_code),
+        "mutated_code": mutant[1].strip() if isinstance(mutant[1], str) else str(mutant[1]),
+        "context_before": get_context_lines(source_lines, line_num, before=2, after=0),
+        "context_after": get_context_lines(source_lines, line_num, before=0, after=2)
+    }
 
 def main():
     global cmd
@@ -114,16 +202,17 @@ def main():
                  ".vy": "vyper",
                  ".fe": "fe"}
 
-    print("*** UNIVERSALMUTATOR ***")
+    print("*** UNIVERSALMUTATOR v1.10***")
 
     if ("--help" in args) or (len(sys.argv) < 2):
         if len(sys.argv) < 2:
             print("ERROR: mutate requires at least one argument (a file to mutate)\n")
         print("USAGE: mutate <sourcefile> [<language>] [<rule1> <rule2>...]",
-              "[--noCheck] [--cmd <command string>] [--mutantDir <dir>]",
-              "[--lines <coverfile> [--tstl]] [--mutateTestCode] [--mutateBoth]",
-              "[--ignore <file>] [--compile <file>] [--noFastCheck] [--swap]",
-              "[--redundantOK] [--showRules] [--only <rule>]")
+            "[--noCheck] [--cmd <command string>] [--mutantDir <dir>]",
+            "[--lines <coverfile> [--tstl]] [--mutateTestCode] [--mutateBoth]",
+            "[--ignore <file>] [--compile <file>] [--noFastCheck] [--swap]",
+            "[--redundantOK] [--showRules] [--only <rule>] [--group <grp>]",
+            "[--quartile <1|2|3|4>] [--printStat] [--printLog] [--jsonLog]")
         print()
         print("       --noCheck: skips compilation/comparison and just generates mutant files")
         print("       --cmd executes command string, replacing MUTANT with the mutant name, and uses return code")
@@ -142,7 +231,11 @@ def main():
         print("       --redundantOK: keep redundant mutants (for compiler output issues)")
         print("       --showRules: show rule source used to generate each mutant")
         print("       --only <rule>: only use rule file <rule>")
+        print("       --group <grp>: select mutation group (aor, cor, ror, lvr, evr) for the language")
+        print("       --quartile <1|2|3|4>: mutate only the specified quartile of source file lines")
         print("       --printStat: print stats for the rules and generated mutants into files")
+        print("       --printLog: print detailed log of mutations in a structured format")
+        print("       --jsonLog: stream mutations to a JSONL file instead of creating individual files")
         print()
         print("Currently supported languages: ", ", ".join(list(set(languages.values()))))
         print("If not supplying a command to compile/build, you should use --noCheck for C, C++,")
@@ -208,6 +301,16 @@ def main():
     if "--printStat" in args:
         printStat = True
         args.remove("--printStat")
+        
+    printLog = False
+    if "--printLog" in args:
+        printLog = True
+        args.remove("--printLog")
+    
+    jsonLog = False
+    if "--jsonLog" in args:
+        jsonLog = True
+        args.remove("--jsonLog")
 
     cmd = None
     try:
@@ -234,20 +337,37 @@ def main():
         args.remove("--lines")
         args.remove(lineFile)
 
-    if lineFile is not None:
-        with open(lineFile) as file:
-            if not tstl:
-                lines = list(map(int, file.read().split()))
-            else:
-                lines = []
-                for l in file:
-                    if "LINES" in l:
-                        if sourceFile not in l:
-                            continue
-                        db = l.split("[")[1]
-                        d = db[:-2].split(",")
-                        for line in d:
-                            lines.append(int(line))
+    group = None
+    try:
+        grouppos = args.index("--group")
+    except ValueError:
+        grouppos = -1
+
+    if grouppos != -1:
+        group = args[grouppos + 1].lower()
+        args.remove("--group")
+        args.remove(group)
+        valid_groups = ["aor", "cor", "ror", "lvr", "evr"]
+        if group not in valid_groups:
+            print(f"ERROR: Invalid group '{group}'. Valid groups are: {', '.join(valid_groups)}")
+            sys.exit(1)
+
+    quartile = None
+    try:
+        quartilepos = args.index("--quartile")
+    except ValueError:
+        quartilepos = -1
+
+    if quartilepos != -1:
+        try:
+            quartile = int(args[quartilepos + 1])
+            if quartile not in [1, 2, 3, 4]:
+                raise ValueError
+        except ValueError:
+            print("ERROR: --quartile must be 1, 2, 3, or 4")
+            sys.exit(1)
+        args.remove("--quartile")
+        args.remove(args[quartilepos])
 
     mdir = "."
     try:
@@ -327,24 +447,52 @@ def main():
     base = (".".join((sourceFile.split(".")[:-1]))).split("/")[-1]
     ending = "." + sourceFile.split(".")[-1]
 
-    if "--only" not in args:    
+    # Determine the language from the file extension
+    try:
+        file_language = languages[ending]
+    except KeyError:
+        file_language = "none"
+    
+    # Determine language from command line if provided
+    if len(args) >= 3 and args[2] not in ["--only", "--group"]:
+        if ".rules" not in args[2]:
+            language = args[2]
+        else:
+            language = file_language
+    else:
+        language = file_language
+
+    # Normalize language
+    if language not in handlers and language.lower() in handlers:
+        language = language.lower()
+
+    # Handle rule selection based on --group, --only, or default
+    if group is not None:
+        # Only use the specific group rule file - no universal rules
+        group_rule_path = f"comby/{language}/{group}.rules"
+        resolved_group_rule = find_package_resource(group_rule_path)
+        print(f"USING GROUP RULE: {resolved_group_rule}")
+        rules = [resolved_group_rule]
+    elif "--only" in args:
+        # Use the specific rule file mentioned in --only
+        onlyPos = args.index("--only")
+        rule_path = args[onlyPos + 1]
+        rules = [rule_path]
+        if args[2] != "--only":
+            language = args[2]
+        else:
+            language = file_language
+        if language not in handlers and language.lower() in handlers:
+            language = language.lower()
+    else:
+        # Use the default rule set
         if len(args) < 3:
-            try:
-                language = languages[ending]
-            except KeyError:
-                language = "none"
             otherRules = []
         else:
             if ".rules" in args[2]:
-                language = languages[ending]
                 otherRules = args[2:]
             else:
-                language = args[2]
                 otherRules = args[3:]
-
-        if language not in handlers:
-            if language.lower() in handlers:
-                language = language.lower()
 
         if language in cLikeLanguages:
             otherRules.append("c_like.rules")
@@ -362,27 +510,43 @@ def main():
             if language == "none":
                 fuzzRules = ["universal.rules", "c_like.rules", "python.rules", "vyper.rules", "solidity.rules"]
                 rules = list(set(fuzzRules + rules))
-    else:
-        onlyPos = args.index("--only")
-        rules = [args[onlyPos + 1]]
-        if args[2] != "--only":
-            language = args[2]
-        else:
-            try:
-                language = languages[ending]
-            except KeyError:
-                language = "none"
-        if language not in handlers:
-            if language.lower() in handlers:
-                language = language.lower()
 
     source = []
 
     with open(sourceFile, 'r') as file:
         for line in file:
-            # remove non-ascii characters (comby issue)
             line_processed = line.encode('ascii', 'ignore').decode()
             source.append(line_processed)
+
+    if quartile is not None:
+        total_lines = len(source)
+        lines_per_quartile = math.ceil(total_lines / 4)
+        if quartile == 1:
+            lines = list(range(1, lines_per_quartile + 1))
+        elif quartile == 2:
+            lines = list(range(lines_per_quartile + 1, 2 * lines_per_quartile + 1))
+        elif quartile == 3:
+            lines = list(range(2 * lines_per_quartile + 1, 3 * lines_per_quartile + 1))
+        else:  # quartile == 4
+            lines = list(range(3 * lines_per_quartile + 1, total_lines + 1))
+        if lineFile is not None:
+            print("WARNING: --quartile overrides --lines")
+    elif lineFile is not None:
+        with open(lineFile) as file:
+            if not tstl:
+                lines = list(map(int, file.read().split()))
+            else:
+                lines = []
+                for l in file:
+                    if "LINES" in l:
+                        if sourceFile not in l:
+                            continue
+                        db = l.split("[")[1]
+                        d = db[:-2].split(",")
+                        for line in d:
+                            lines.append(int(line))
+    else:
+        lines = None
 
     mutants = []
 
@@ -395,7 +559,7 @@ def main():
     if fuzz:
         if len(mutants) == 0:
             sys.exit(255)
-        mutants = [random.choice(mutants)]  # Just pick one
+        mutants = [random.choice(mutants)]
 
     print(len(mutants), "MUTANTS GENERATED BY RULES")
 
@@ -407,6 +571,7 @@ def main():
 
     if comby:
         noFastCheck = True
+        sourceJoined = ''.join(source)
 
     dumbHandler = False
     if not noCheck:
@@ -429,17 +594,29 @@ def main():
     deadCodeLines = []
     interestingLines = []
 
+    # Create log file if --printLog is specified
+    if printLog:
+        os.makedirs(mdir, exist_ok=True)
+        logfile = open(os.path.join(mdir, 'mutation_log.txt'), 'w')
+    
+    if jsonLog:
+        os.makedirs(mdir, exist_ok=True)
+        jsonlog_file = open(os.path.join(mdir, 'mutations.jsonl'), 'w')
+    
     tmpMutantName = ".tmp_mutant." + str(os.getpid()) + ending
     mutantNo = 0
     for mutant in mutants:
-        if (lineFile is not None) and mutant[0] not in lines:
-            # skip if not a line to mutate
-            continue
+        if (lines is not None):
+            # If we're using Comby, mutant[3] holds the (start_line, end_line)
+            lineno = mutant[3][0] if comby else mutant[0]
+            if lineno not in lines:
+                continue
+                
         if (not noFastCheck):
             if comby:
                 checkLines = []
                 for i in range(mutant[3][0], mutant[3][1] + 1):
-                    if i not in deadCodeLines or i not in interestingLines:
+                    if i not in deadCodeLines and i not in interestingLines:
                         checkLines.append(i)
                 for lineNo in checkLines:
                     fastCheckMutant = (lineNo, toGarbage(source[lineNo - 1]))
@@ -458,12 +635,11 @@ def main():
                     continue
         
         if comby:
-            sourceJoined = ''.join(source)
             print("PROCESSING MUTANT:",
-              "range" + str(mutant[0]) + ":", sourceJoined[mutant[0][0]:mutant[0][1]].replace("\n", "\\n"), " ==> ", mutant[1], end="...")
+                "range" + str(mutant[0]) + ":", sourceJoined[mutant[0][0]:mutant[0][1]].replace("\n", "\\n"), " ==> ", mutant[1], end="...")
         else:
             print("PROCESSING MUTANT:",
-              str(mutant[0]) + ":", source[mutant[0] - 1][:-1], " ==> ", mutant[1][:-1], end="...")
+                str(mutant[0]) + ":", source[mutant[0] - 1][:-1], " ==> ", mutant[1][:-1], end="...")
         if (not comby) and showRules:
             print("(FROM:", mutant[2][1], end=")...")
         
@@ -480,14 +656,65 @@ def main():
             mutantResult = handler(tmpMutantName, mutant, sourceFile, uniqueMutants)
         else:
             mutantResult = handler(tmpMutantName, mutant, sourceFile, uniqueMutants, compileFile=compileFile)
+        
         print(mutantResult, end=" ")
-        mutantName = mdir + base + ".mutant." + str(mutantNo) + ending
-        if fuzz:
-            mutantName = mdir + "fuzz.out"
+        
         if (mutantResult == "VALID") or (mutantResult == "REDUNDANT" and redundantOK):
-            print("[written to", mutantName + "]", end=" ")
-            shutil.copy(tmpMutantName, mutantName)
             validMutants.append(mutant)
+            
+            if jsonLog:
+                # Create and log the mutation record
+                mutation_record = create_mutation_record(mutant, mutantNo, group, quartile, 
+                                                        sourceFile, source, sourceJoined, is_comby=comby)
+                jsonlog_file.write(json.dumps(mutation_record) + '\n')
+                jsonlog_file.flush()  # Ensure data is written immediately
+                print(f"[logged mutation {mutantNo}]", end=" ")
+            else:
+                # Original behavior - write mutant file
+                mutantName = mdir + base + ".mutant." + str(mutantNo) + ending
+                if fuzz:
+                    mutantName = mdir + "fuzz.out"
+                print("[written to", mutantName + "]", end=" ")
+                os.makedirs(os.path.dirname(mutantName), exist_ok=True)
+                shutil.copy(tmpMutantName, mutantName)
+
+            # Extract mutation information for log
+            if printLog and comby:
+                # Extract mutation type (AOR, COR, etc.) from rule info
+                mutation_type = "UNK"
+                if group:
+                    mutation_type = group.upper()
+                elif len(mutant) > 2 and len(mutant[2]) > 1:
+                    rule_file = mutant[2][1].split('/')[-1].split('.')[0].upper()
+                    # If rule file doesn't contain a mutation type, try to infer from operators
+                    if rule_file in ["AOR", "COR", "ROR", "LVR", "EVR"]:
+                        mutation_type = rule_file
+                
+                # Get line number and position
+                lineno = 0
+                pos = 0
+                if comby:
+                    for i in range(len(source)):
+                        if i+1 >= mutant[3][0]:
+                            lineno = i+1
+                            pos = mutant[3][0]
+                            break
+                else:
+                    lineno = mutant[0]
+                    pos = 0
+                
+                # Get original and mutated code
+                orig_code = sourceJoined[mutant[0][0]:mutant[0][1]]
+                mutated_code = mutant[1]
+                
+                # Extract operator types
+                orig_op = extract_operator(orig_code)
+                new_op = extract_operator(mutated_code)
+                
+                # Format log entry
+                log_entry = f"{mutantNo}:{mutation_type}:{orig_op}(int,int):{new_op}(int,int):{base}:{lineno}:{pos}:{orig_code.strip().replace('|', '\\|')} |==> {mutated_code.strip().replace('|', '\\|')}\n"
+                logfile.write(log_entry)
+
             mutantNo += 1
         elif mutantResult == "INVALID":
             invalidMutants.append(mutant)
@@ -495,12 +722,20 @@ def main():
             redundantMutants.append(mutant)
         print()
         sys.stdout.flush()
+        
+    if printLog:
+        logfile.close()
+
+    if jsonLog:
+        jsonlog_file.close()
 
     if doSwaps:
         print("TRYING CODE SWAPS...")
         swapList = []
         for lineNo in range(len(source)):
             if (lineNo + 1) in deadCodeLines:
+                continue
+            if lines is not None and (lineNo + 1) not in lines:
                 continue
             swapList.append(lineNo)
         for i in range(0, len(swapList)-1):
@@ -520,10 +755,29 @@ def main():
             else:
                 mutantResult = handler(tmpMutantName, mutant, sourceFile, uniqueMutants, compileFile=compileFile)
             print(mutantResult, end=" ")
-            mutantName = mdir + base + ".mutant." + str(mutantNo) + ending
             if (mutantResult == "VALID") or (mutantResult == "REDUNDANT" and redundantOK):
-                print("[written to", mutantName + "]", end=" ")
-                shutil.copy(tmpMutantName, mutantName)
+                if jsonLog:
+                    # Create a mutation record for the swap
+                    swap_mutation = {
+                        "id": mutantNo,
+                        "mutation_type": "SWAP",
+                        "quartile": quartile,
+                        "project": base,
+                        "file": sourceFile,
+                        "line_numbers": [a+1, b+1],
+                        "original_lines": [source[a].strip(), source[b].strip()],
+                        "swapped_lines": [source[b].strip(), source[a].strip()]
+                    }
+                    jsonlog_file.write(json.dumps(swap_mutation) + '\n')
+                    jsonlog_file.flush()
+                    print(f"[logged swap mutation {mutantNo}]", end=" ")
+                else:
+                    # Only write file if not in JSON logging mode
+                    mutantName = mdir + base + ".mutant." + str(mutantNo) + ending
+                    print("[written to", mutantName + "]", end=" ")
+                    os.makedirs(os.path.dirname(mutantName), exist_ok=True)
+                    shutil.copy(tmpMutantName, mutantName)
+                
                 validMutants.append(mutant)
                 mutantNo += 1
             elif mutantResult == "INVALID":
@@ -541,7 +795,7 @@ def main():
     valid_rate = 0 if totalMutants == 0 else (len(validMutants) * 100.0)/totalMutants
     print(f"Valid Percentage: {valid_rate}%")
     
-    (rules, ignoreRules, skipRules) = mutator.parseRules(rules, comby= comby)
+    (rules, ignoreRules, skipRules) = mutator.parseRules(rules, comby=comby)
 
     if printStat:
         source = sourceJoined if comby else None
@@ -561,7 +815,7 @@ def main():
     except BaseException:
         pass
 
-def printMutantsStat(mutants, source = None):
+def printMutantsStat(mutants, source=None):
     def dumpToFile(fileName, mutants):
         fis = open(fileName, "w")
         i = 0

@@ -1,0 +1,16 @@
+return :[expr] ==> return 0
+return :[expr] ==> return None
+return :[expr] ==> return True
+return :[expr] ==> return False
+
+:[var] = :[expr] ==> :[var] = 0
+:[var] = :[expr] ==> :[var] = None
+:[var] = :[expr] ==> :[var] = True
+:[var] = :[expr] ==> :[var] = False
+:[var] = :[expr] ==> :[var] = []
+
+def :[name](:[args]): ==> def :[name](:[args]): pass
+
+class :[name](:[bases]): ==> class :[name](:[bases]): pass
+
+try: :[body] except :[ex]: :[handler] ==> try: pass except :[ex]: :[handler]

@@ -1,0 +1,26 @@
+# Literal Value Replacement (LVR) for JavaScript
+# Replaces numerical, boolean, and string literals
+
+[lvr_int_to_zero]
+match   = ":[num~[0-9]+]"
+rewrite = "0"
+
+[lvr_int_to_one]
+match   = ":[num~[0-9]+]"
+rewrite = "1"
+
+[lvr_int_to_minus_one]
+match   = ":[num~[0-9]+]"
+rewrite = "-1"
+
+[lvr_true_to_false]
+match   = "true"
+rewrite = "false"
+
+[lvr_false_to_true]
+match   = "false"
+rewrite = "true"
+
+[lvr_string_to_empty]
+match   = "\"[:content]\""
+rewrite = "\"\""

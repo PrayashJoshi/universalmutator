@@ -1,0 +1,82 @@
+# Arithmetic Operator Replacement (AOR) for JavaScript
+# Swaps binary arithmetic operators: +, -, *, /, %
+
+[aor_plus_to_minus]
+match   = ":[lhs] + :[rhs]"
+rewrite = ":[lhs] - :[rhs]"
+
+[aor_plus_to_mul]
+match   = ":[lhs] + :[rhs]"
+rewrite = ":[lhs] * :[rhs]"
+
+[aor_plus_to_div]
+match   = ":[lhs] + :[rhs]"
+rewrite = ":[lhs] / :[rhs]"
+
+[aor_plus_to_mod]
+match   = ":[lhs] + :[rhs]"
+rewrite = ":[lhs] % :[rhs]"
+
+[aor_minus_to_plus]
+match   = ":[lhs] - :[rhs]"
+rewrite = ":[lhs] + :[rhs]"
+
+[aor_minus_to_mul]
+match   = ":[lhs] - :[rhs]"
+rewrite = ":[lhs] * :[rhs]"
+
+[aor_minus_to_div]
+match   = ":[lhs] - :[rhs]"
+rewrite = ":[lhs] / :[rhs]"
+
+[aor_minus_to_mod]
+match   = ":[lhs] - :[rhs]"
+rewrite = ":[lhs] % :[rhs]"
+
+[aor_mul_to_plus]
+match   = ":[lhs] * :[rhs]"
+rewrite = ":[lhs] + :[rhs]"
+
+[aor_mul_to_minus]
+match   = ":[lhs] * :[rhs]"
+rewrite = ":[lhs] - :[rhs]"
+
+[aor_mul_to_div]
+match   = ":[lhs] * :[rhs]"
+rewrite = ":[lhs] / :[rhs]"
+
+[aor_mul_to_mod]
+match   = ":[lhs] * :[rhs]"
+rewrite = ":[lhs] % :[rhs]"
+
+[aor_div_to_plus]
+match   = ":[lhs] / :[rhs]"
+rewrite = ":[lhs] + :[rhs]"
+
+[aor_div_to_minus]
+match   = ":[lhs] / :[rhs]"
+rewrite = ":[lhs] - :[rhs]"
+
+[aor_div_to_mul]
+match   = ":[lhs] / :[rhs]"
+rewrite = ":[lhs] * :[rhs]"
+
+[aor_div_to_mod]
+match   = ":[lhs] / :[rhs]"
+rewrite = ":[lhs] % :[rhs]"
+
+[aor_mod_to_plus]
+match   = ":[lhs] % :[rhs]"
+rewrite = ":[lhs] + :[rhs]"
+
+[aor_mod_to_minus]
+match   = ":[lhs] % :[rhs]"
+rewrite = ":[lhs] - :[rhs]"
+
+[aor_mod_to_mul]
+match   = ":[lhs] % :[rhs]"
+rewrite = ":[lhs] * :[rhs]"
+
+[aor_mod_to_div]
+match   = ":[lhs] % :[rhs]"
+rewrite = ":[lhs] / :[rhs]"

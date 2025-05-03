@@ -1,0 +1,47 @@
+:[lhs]==:[rhs] ==> :[lhs]!=:[rhs]
+:[lhs]==:[rhs] ==> :[lhs]<:[rhs]
+:[lhs]==:[rhs] ==> :[lhs]>:[rhs]
+:[lhs]==:[rhs] ==> :[lhs]<=:[rhs]
+:[lhs]==:[rhs] ==> :[lhs]>=:[rhs]
+:[lhs]==:[rhs] ==> True
+:[lhs]==:[rhs] ==> False
+
+:[lhs]!=:[rhs] ==> :[lhs]==:[rhs]
+:[lhs]!=:[rhs] ==> :[lhs]<:[rhs]
+:[lhs]!=:[rhs] ==> :[lhs]>:[rhs]
+:[lhs]!=:[rhs] ==> :[lhs]<=:[rhs]
+:[lhs]!=:[rhs] ==> :[lhs]>=:[rhs]
+:[lhs]!=:[rhs] ==> True
+:[lhs]!=:[rhs] ==> False
+
+:[lhs]<:[rhs] ==> :[lhs]==:[rhs]
+:[lhs]<:[rhs] ==> :[lhs]!=:[rhs]
+:[lhs]<:[rhs] ==> :[lhs]>:[rhs]
+:[lhs]<:[rhs] ==> :[lhs]<=:[rhs]
+:[lhs]<:[rhs] ==> :[lhs]>=:[rhs]
+:[lhs]<:[rhs] ==> True
+:[lhs]<:[rhs] ==> False
+
+:[lhs]>:[rhs] ==> :[lhs]==:[rhs]
+:[lhs]>:[rhs] ==> :[lhs]!=:[rhs]
+:[lhs]>:[rhs] ==> :[lhs]<:[rhs]
+:[lhs]>:[rhs] ==> :[lhs]<=:[rhs]
+:[lhs]>:[rhs] ==> :[lhs]>=:[rhs]
+:[lhs]>:[rhs] ==> True
+:[lhs]>:[rhs] ==> False
+
+:[lhs]<=:[rhs] ==> :[lhs]==:[rhs]
+:[lhs]<=:[rhs] ==> :[lhs]!=:[rhs]
+:[lhs]<=:[rhs] ==> :[lhs]<:[rhs]
+:[lhs]<=:[rhs] ==> :[lhs]>:[rhs]
+:[lhs]<=:[rhs] ==> :[lhs]>=:[rhs]
+:[lhs]<=:[rhs] ==> True
+:[lhs]<=:[rhs] ==> False
+
+:[lhs]>=:[rhs] ==> :[lhs]==:[rhs]
+:[lhs]>=:[rhs] ==> :[lhs]!=:[rhs]
+:[lhs]>=:[rhs] ==> :[lhs]<:[rhs]
+:[lhs]>=:[rhs] ==> :[lhs]>:[rhs]
+:[lhs]>=:[rhs] ==> :[lhs]<=:[rhs]
+:[lhs]>=:[rhs] ==> True
+:[lhs]>=:[rhs] ==> False

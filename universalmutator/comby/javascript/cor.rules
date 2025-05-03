@@ -1,0 +1,18 @@
+# Conditional Operator Replacement (COR) for JavaScript
+# Swaps || and &&, replaces conditions with true/false
+
+[cor_or_to_and]
+match   = ":[left] || :[right]"
+rewrite = ":[left] && :[right]"
+
+[cor_and_to_or]
+match   = ":[left] && :[right]"
+rewrite = ":[left] || :[right]"
+
+[cor_condition_to_true]
+match   = "if (:[condition])"
+rewrite = "if (true)"
+
+[cor_condition_to_false]
+match   = "if (:[condition])"
+rewrite = "if (false)"

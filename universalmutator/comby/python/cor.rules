@@ -1,0 +1,19 @@
+:[left] or :[right] ==> :[left] and :[right]
+:[left] and :[right] ==> :[left] or :[right]
+
+if :[condition]: ==> if True:
+if :[condition]: ==> if False:
+if :[condition]: ==> if not :[condition]:
+
+while :[condition]: ==> while True:
+while :[condition]: ==> while False:
+while :[condition]: ==> while not :[condition]:
+
+for :[var] in :[iterable]: ==> for :[var] in []:
+for :[var] in :[iterable]: ==> if True: for :[var] in :[iterable]:
+
+not :[condition] ==> :[condition]
+:[condition] is :[value] ==> :[condition] is not :[value]
+:[condition] is not :[value] ==> :[condition] is :[value]
+:[condition] in :[collection] ==> :[condition] not in :[collection]
+:[condition] not in :[collection] ==> :[condition] in :[collection]

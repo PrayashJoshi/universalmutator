@@ -1,0 +1,22 @@
+# Expression Value Replacement (EVR) for JavaScript
+# Replaces expressions in returns and assignments with 0
+
+[evr_return_to_zero]
+match   = "return :[expr];"
+rewrite = "return 0;"
+
+[evr_var_decl_to_zero]
+match   = "var :[var] = :[expr];"
+rewrite = "var :[var] = 0;"
+
+[evr_let_decl_to_zero]
+match   = "let :[var] = :[expr];"
+rewrite = "let :[var] = 0;"
+
+[evr_const_decl_to_zero]
+match   = "const :[var] = :[expr];"
+rewrite = "const :[var] = 0;"
+
+[evr_assign_to_zero]
+match   = ":[var] = :[expr];"
+rewrite = ":[var] = 0;"

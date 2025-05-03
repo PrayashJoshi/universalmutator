@@ -1,0 +1,162 @@
+# Relational Operator Replacement (ROR) for JavaScript
+# Swaps all relational operators: ==, !=, <, >, <=, >=, ===, !==
+
+[ror_eq_to_ne]
+match   = ":[lhs] == :[rhs]"
+rewrite = ":[lhs] != :[rhs]"
+
+[ror_eq_to_lt]
+match   = ":[lhs] == :[rhs]"
+rewrite = ":[lhs] < :[rhs]"
+
+[ror_eq_to_gt]
+match   = ":[lhs] == :[rhs]"
+rewrite = ":[lhs] > :[rhs]"
+
+[ror_eq_to_le]
+match   = ":[lhs] == :[rhs]"
+rewrite = ":[lhs] <= :[rhs]"
+
+[ror_eq_to_ge]
+match   = ":[lhs] == :[rhs]"
+rewrite = ":[lhs] >= :[rhs]"
+
+[ror_ne_to_eq]
+match   = ":[lhs] != :[rhs]"
+rewrite = ":[lhs] == :[rhs]"
+
+[ror_ne_to_lt]
+match   = ":[lhs] != :[rhs]"
+rewrite = ":[lhs] < :[rhs]"
+
+[ror_ne_to_gt]
+match   = ":[lhs] != :[rhs]"
+rewrite = ":[lhs] > :[rhs]"
+
+[ror_ne_to_le]
+match   = ":[lhs] != :[rhs]"
+rewrite = ":[lhs] <= :[rhs]"
+
+[ror_ne_to_ge]
+match   = ":[lhs] != :[rhs]"
+rewrite = ":[lhs] >= :[rhs]"
+
+[ror_lt_to_eq]
+match   = ":[lhs] < :[rhs]"
+rewrite = ":[lhs] == :[rhs]"
+
+[ror_lt_to_ne]
+match   = ":[lhs] < :[rhs]"
+rewrite = ":[lhs] != :[rhs]"
+
+[ror_lt_to_gt]
+match   = ":[lhs] < :[rhs]"
+rewrite = ":[lhs] > :[rhs]"
+
+[ror_lt_to_le]
+match   = ":[lhs] < :[rhs]"
+rewrite = ":[lhs] <= :[rhs]"
+
+[ror_lt_to_ge]
+match   = ":[lhs] < :[rhs]"
+rewrite = ":[lhs] >= :[rhs]"
+
+[ror_gt_to_eq]
+match   = ":[lhs] > :[rhs]"
+rewrite = ":[lhs] == :[rhs]"
+
+[ror_gt_to_ne]
+match   = ":[lhs] > :[rhs]"
+rewrite = ":[lhs] != :[rhs]"
+
+[ror_gt_to_lt]
+match   = ":[lhs] > :[rhs]"
+rewrite = ":[lhs] < :[rhs]"
+
+[ror_gt_to_le]
+match   = ":[lhs] > :[rhs]"
+rewrite = ":[lhs] <= :[rhs]"
+
+[ror_gt_to_ge]
+match   = ":[lhs] > :[rhs]"
+rewrite = ":[lhs] >= :[rhs]"
+
+[ror_le_to_eq]
+match   = ":[lhs] <= :[rhs]"
+rewrite = ":[lhs] == :[rhs]"
+
+[ror_le_to_ne]
+match   = ":[lhs] <= :[rhs]"
+rewrite = ":[lhs] != :[rhs]"
+
+[ror_le_to_lt]
+match   = ":[lhs] <= :[rhs]"
+rewrite = ":[lhs] < :[rhs]"
+
+[ror_le_to_gt]
+match   = ":[lhs] <= :[rhs]"
+rewrite = ":[lhs] > :[rhs]"
+
+[ror_le_to_ge]
+match   = ":[lhs] <= :[rhs]"
+rewrite = ":[lhs] >= :[rhs]"
+
+[ror_ge_to_eq]
+match   = ":[lhs] >= :[rhs]"
+rewrite = ":[lhs] == :[rhs]"
+
+[ror_ge_to_ne]
+match   = ":[lhs] >= :[rhs]"
+rewrite = ":[lhs] != :[rhs]"
+
+[ror_ge_to_lt]
+match   = ":[lhs] >= :[rhs]"
+rewrite = ":[lhs] < :[rhs]"
+
+[ror_ge_to_gt]
+match   = ":[lhs] >= :[rhs]"
+rewrite = ":[lhs] > :[rhs]"
+
+[ror_ge_to_le]
+match   = ":[lhs] >= :[rhs]"
+rewrite = ":[lhs] <= :[rhs]"
+
+[ror_strict_eq_to_ne]
+match   = ":[lhs] === :[rhs]"
+rewrite = ":[lhs] !== :[rhs]"
+
+[ror_strict_eq_to_lt]
+match   = ":[lhs] === :[rhs]"
+rewrite = ":[lhs] < :[rhs]"
+
+[ror_strict_eq_to_gt]
+match   = ":[lhs] === :[rhs]"
+rewrite = ":[lhs] > :[rhs]"
+
+[ror_strict_eq_to_le]
+match   = ":[lhs] === :[rhs]"
+rewrite = ":[lhs] <= :[rhs]"
+
+[ror_strict_eq_to_ge]
+match   = ":[lhs] === :[rhs]"
+rewrite = ":[lhs] >= :[rhs]"
+
+[ror_strict_ne_to_eq]
+match   = ":[lhs] !== :[rhs]"
+rewrite = ":[lhs] === :[rhs]"
+
+[ror_strict_ne_to_lt]
+match   = ":[lhs] !== :[rhs]"
+rewrite = ":[lhs] < :[rhs]"
+
+[ror_strict_ne_to_gt]
+match   = ":[lhs] !== :[rhs]"
+rewrite = ":[lhs] > :[rhs]"
+
+[ror_strict_ne_to_le]
+match   = ":[lhs] !== :[rhs]"
+rewrite = ":[lhs] <= :[rhs]"
+
+[ror_strict_ne_to_ge]
+match   = ":[lhs] !== :[rhs]"
+rewrite = ":[lhs] >= :[rhs]"

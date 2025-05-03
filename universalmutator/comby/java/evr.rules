@@ -1,0 +1,14 @@
+return :[expr]; ==> return 0;
+return :[expr]; ==> return null;
+return :[expr]; ==> return true;
+return :[expr]; ==> return false;
+
+:[type] :[var]=:[expr]; ==> :[type] :[var]=0;
+:[type] :[var]=:[expr]; ==> :[type] :[var]=null;
+:[type] :[var]=:[expr]; ==> :[type] :[var]=true;
+:[type] :[var]=:[expr]; ==> :[type] :[var]=false;
+
+:[var]=:[expr]; ==> :[var]=0;
+:[var]=:[expr]; ==> :[var]=null;
+:[var]=:[expr]; ==> :[var]=true;
+:[var]=:[expr]; ==> :[var]=false;
