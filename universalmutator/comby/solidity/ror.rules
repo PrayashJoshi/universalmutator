@@ -1,0 +1,60 @@
+# Relational Operator Replacement (ROR)
+# This file contains rules for replacing relational operators in Solidity code
+# with other relational operators.
+# Operators affected: ==, !=, <, <=, >, >=
+# Special Solidity cases: address comparisons, contract state comparisons
+
+
+# == operator replacements
+:[lhs] == :[rhs] ==> :[lhs] != :[rhs]
+:[lhs] == :[rhs] ==> :[lhs] > :[rhs]
+:[lhs] == :[rhs] ==> :[lhs] >= :[rhs]
+:[lhs] == :[rhs] ==> :[lhs] < :[rhs]
+:[lhs] == :[rhs] ==> :[lhs] <= :[rhs]
+:[lhs] == :[rhs] ==> true
+:[lhs] == :[rhs] ==> false
+
+# != operator replacements
+:[lhs] != :[rhs] ==> :[lhs] == :[rhs]
+:[lhs] != :[rhs] ==> :[lhs] > :[rhs]
+:[lhs] != :[rhs] ==> :[lhs] >= :[rhs]
+:[lhs] != :[rhs] ==> :[lhs] < :[rhs]
+:[lhs] != :[rhs] ==> :[lhs] <= :[rhs]
+:[lhs] != :[rhs] ==> true
+:[lhs] != :[rhs] ==> false
+
+# > operator replacements
+:[lhs] > :[rhs] ==> :[lhs] == :[rhs]
+:[lhs] > :[rhs] ==> :[lhs] != :[rhs]
+:[lhs] > :[rhs] ==> :[lhs] >= :[rhs]
+:[lhs] > :[rhs] ==> :[lhs] < :[rhs]
+:[lhs] > :[rhs] ==> :[lhs] <= :[rhs]
+:[lhs] > :[rhs] ==> true
+:[lhs] > :[rhs] ==> false
+
+# >= operator replacements
+:[lhs] >= :[rhs] ==> :[lhs] == :[rhs]
+:[lhs] >= :[rhs] ==> :[lhs] != :[rhs]
+:[lhs] >= :[rhs] ==> :[lhs] > :[rhs]
+:[lhs] >= :[rhs] ==> :[lhs] < :[rhs]
+:[lhs] >= :[rhs] ==> :[lhs] <= :[rhs]
+:[lhs] >= :[rhs] ==> true
+:[lhs] >= :[rhs] ==> false
+
+# < operator replacements
+:[lhs] < :[rhs] ==> :[lhs] == :[rhs]
+:[lhs] < :[rhs] ==> :[lhs] != :[rhs]
+:[lhs] < :[rhs] ==> :[lhs] > :[rhs]
+:[lhs] < :[rhs] ==> :[lhs] >= :[rhs]
+:[lhs] < :[rhs] ==> :[lhs] <= :[rhs]
+:[lhs] < :[rhs] ==> true
+:[lhs] < :[rhs] ==> false
+
+# <= operator replacements
+:[lhs] <= :[rhs] ==> :[lhs] == :[rhs]
+:[lhs] <= :[rhs] ==> :[lhs] != :[rhs]
+:[lhs] <= :[rhs] ==> :[lhs] > :[rhs]
+:[lhs] <= :[rhs] ==> :[lhs] >= :[rhs]
+:[lhs] <= :[rhs] ==> :[lhs] < :[rhs]
+:[lhs] <= :[rhs] ==> true
+:[lhs] <= :[rhs] ==> false

@@ -62,6 +62,11 @@ setup(
             'comby/javascript/ror.rules',
             'comby/javascript/lvr.rules',
             'comby/javascript/evr.rules',
+            'comby/solidity/aor.rules',
+            'comby/solidity/cor.rules',
+            'comby/solidity/ror.rules',
+            'comby/solidity/lvr.rules',
+            'comby/solidity/evr.rules',
             ]
     },
     license='MIT',

@@ -1,0 +1,80 @@
+# Expression Value Replacement (EVR)
+# This file contains rules for replacing expressions with alternative values in Solidity code.
+# Targets: return values, variable assignments, function arguments
+# Common replacements include: 0, default values, true/false, address(0)
+
+# Return statements
+return :[expr]; ==> return 0;
+return :[expr]; ==> return 1;
+return :[expr]; ==> return true;
+return :[expr]; ==> return false;
+return :[expr]; ==> return address(0);
+return :[expr]; ==> return "";
+return :[expr]; ==> return msg.sender;
+
+# Variable declarations and assignments for various Solidity types
+# uint
+uint :[var] = :[expr]; ==> uint :[var] = 0;
+uint :[var] = :[expr]; ==> uint :[var] = 1;
+uint256 :[var] = :[expr]; ==> uint256 :[var] = 0;
+uint256 :[var] = :[expr]; ==> uint256 :[var] = 1;
+uint8 :[var] = :[expr]; ==> uint8 :[var] = 0;
+uint8 :[var] = :[expr]; ==> uint8 :[var] = 1;
+
+# int
+int :[var] = :[expr]; ==> int :[var] = 0;
+int :[var] = :[expr]; ==> int :[var] = -1;
+int256 :[var] = :[expr]; ==> int256 :[var] = 0;
+int256 :[var] = :[expr]; ==> int256 :[var] = -1;
+int8 :[var] = :[expr]; ==> int8 :[var] = 0;
+int8 :[var] = :[expr]; ==> int8 :[var] = -1;
+
+# bool
+bool :[var] = :[expr]; ==> bool :[var] = true;
+bool :[var] = :[expr]; ==> bool :[var] = false;
+
+# address
+address :[var] = :[expr]; ==> address :[var] = address(0);
+address :[var] = :[expr]; ==> address :[var] = msg.sender;
+
+# string
+string memory :[var] = :[expr]; ==> string memory :[var] = "";
+string memory :[var] = :[expr]; ==> string memory :[var] = "dummy";
+
+# bytes
+bytes memory :[var] = :[expr]; ==> bytes memory :[var] = "";
+bytes memory :[var] = :[expr]; ==> bytes memory :[var] = hex"00";
+bytes32 :[var] = :[expr]; ==> bytes32 :[var] = 0;
+bytes32 :[var] = :[expr]; ==> bytes32 :[var] = bytes32(0);
+
+# Assignments without declaration
+:[var] = :[expr]; ==> :[var] = 0;
+:[var] = :[expr]; ==> :[var] = 1;
+:[var] = :[expr]; ==> :[var] = true;
+:[var] = :[expr]; ==> :[var] = false;
+:[var] = :[expr]; ==> :[var] = address(0);
+:[var] = :[expr]; ==> :[var] = msg.sender;
+:[var] = :[expr]; ==> :[var] = "";
+
+# Function calls
+require(:[expr]); ==> require(true);
+require(:[expr]); ==> require(false);
+require(:[expr], :[msg]); ==> require(true, :[msg]);
+require(:[expr], :[msg]); ==> require(false, :[msg]);
+
+assert(:[expr]); ==> assert(true);
+assert(:[expr]); ==> assert(false);
+
+revert(:[msg]); ==> revert("");
+
+# Specific to Solidity: address.balance and similar
+address(:[expr]).balance ==> 0
+address(:[expr]).balance ==> 1
+block.timestamp ==> 0
+block.timestamp ==> 1
+block.number ==> 0
+block.number ==> 1
+
+# Mapping access 
+mapping[:[key]] ==> mapping[address(0)]
+mapping[:[key]] ==> mapping[0]

@@ -1,4 +1,4 @@
-Metadata-Version: 2.2
+Metadata-Version: 2.1
 Name: universalmutator
 Version: 1.1.12
 Summary: Universal regexp-based mutation tool
@@ -14,14 +14,6 @@ License-File: LICENSE
 Requires-Dist: comby
 Requires-Dist: python-levenshtein
 Requires-Dist: tabulate
-Dynamic: classifier
-Dynamic: description
-Dynamic: description-content-type
-Dynamic: home-page
-Dynamic: keywords
-Dynamic: license
-Dynamic: requires-dist
-Dynamic: summary
 
 This is a tool based on source-based rewrite of code lines for mutation generation, including
 multi-language rules aided by special rules for languages or even projects.  Originally, the approach used only regular expressions,

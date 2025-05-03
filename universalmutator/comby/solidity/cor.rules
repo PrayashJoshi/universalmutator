@@ -1,0 +1,38 @@
+# Conditional Operator Replacement (COR)
+# This file contains rules for replacing conditional operators in Solidity code
+# with other conditional operators.
+# Operators affected: &&, ||, ternary operator (?:), if conditions, while/for conditions
+
+# Boolean operators
+:[lhs] && :[rhs] ==> :[lhs] || :[rhs]
+:[lhs] || :[rhs] ==> :[lhs] && :[rhs]
+
+# Control flow conditions
+if(:[cond]) ==> if(true)
+if(:[cond]) ==> if(false)
+if(:[cond]) ==> if(!:[cond])
+
+require(:[cond]) ==> require(true)
+require(:[cond]) ==> require(false)
+require(:[cond]) ==> require(!:[cond])
+
+assert(:[cond]) ==> assert(true)
+assert(:[cond]) ==> assert(false)
+assert(:[cond]) ==> assert(!:[cond])
+
+while(:[cond]) ==> while(true)
+while(:[cond]) ==> while(false)
+while(:[cond]) ==> while(!:[cond])
+
+for(:[init]; :[cond]; :[incr]) ==> for(:[init]; true; :[incr])
+for(:[init]; :[cond]; :[incr]) ==> for(:[init]; false; :[incr])
+for(:[init]; :[cond]; :[incr]) ==> for(:[init]; !:[cond]; :[incr])
+
+# Ternary operator
+:[lhs] ? :[rhs] : :[else] ==> :[lhs] ? :[else] : :[rhs]
+:[lhs] ? :[rhs] : :[else] ==> true ? :[rhs] : :[else]
+:[lhs] ? :[rhs] : :[else] ==> false ? :[rhs] : :[else]
+:[lhs] ? :[rhs] : :[else] ==> !:[lhs] ? :[rhs] : :[else]
+
+# Boolean negation
+!:[cond] ==> :[cond]

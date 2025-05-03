@@ -65,6 +65,11 @@ universalmutator/comby/python/cor.rules
 universalmutator/comby/python/evr.rules
 universalmutator/comby/python/lvr.rules
 universalmutator/comby/python/ror.rules
+universalmutator/comby/solidity/aor.rules
+universalmutator/comby/solidity/cor.rules
+universalmutator/comby/solidity/evr.rules
+universalmutator/comby/solidity/lvr.rules
+universalmutator/comby/solidity/ror.rules
 universalmutator/static/c.rules
 universalmutator/static/c_like.rules
 universalmutator/static/cpp.rules

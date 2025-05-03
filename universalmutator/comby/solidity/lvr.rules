@@ -1,0 +1,70 @@
+# Literal Value Replacement (LVR)
+# This file contains rules for replacing literal values in Solidity code
+# with alternative literal values.
+# Common literals affected: integers, floating points, booleans, strings, addresses
+# Special Solidity values: wei, ether, block.timestamp, address(0)
+
+
+
+# Integer literals
+0 ==> 1
+0 ==> -1
+1 ==> 0
+1 ==> 2
+2 ==> 1
+-1 ==> 0
+-1 ==> -2
+10 ==> 0
+10 ==> 1
+100 ==> 0
+100 ==> 1
+1000 ==> 0
+1000 ==> 1
+
+# Wei/Ether literals
+1 wei ==> 0 wei
+1 wei ==> 2 wei
+1 gwei ==> 0 gwei
+1 gwei ==> 2 gwei
+1 ether ==> 0 ether
+1 ether ==> 2 ether
+
+# Floating point literals (not commonly used in Solidity but supported)
+0.0 ==> 1.0
+0.0 ==> -1.0
+1.0 ==> 0.0
+1.0 ==> 2.0
+-1.0 ==> 0.0
+-1.0 ==> -2.0
+
+# Boolean literals
+true ==> false
+false ==> true
+
+# String literals
+":[str]" ==> ""
+"" ==> "dummy"
+
+# Address literals
+address(0) ==> address(1)
+address(0) ==> msg.sender
+address(this) ==> address(0)
+address(this) ==> msg.sender
+
+# Time units
+1 seconds ==> 0 seconds
+1 seconds ==> 2 seconds
+1 minutes ==> 0 minutes 
+1 minutes ==> 2 minutes
+1 hours ==> 0 hours
+1 hours ==> 2 hours
+1 days ==> 0 days
+1 days ==> 2 days
+1 weeks ==> 0 weeks
+1 weeks ==> 2 weeks
+
+# Hex literals
+0x0 ==> 0x1
+0x1 ==> 0x0
+0xffffffff ==> 0x0
+0xffffffff ==> 0x1

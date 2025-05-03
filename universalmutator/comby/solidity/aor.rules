@@ -1,0 +1,61 @@
+# Arithmetic Operator Replacement (AOR)
+# This file contains rules for replacing arithmetic operators in Solidity code
+# with other arithmetic operators.
+# Operators affected: +, -, *, /, %, +=, -=, *=, /=, %=, ++, --
+
+:[lhs] + :[rhs] ==> :[lhs] - :[rhs]
+:[lhs] + :[rhs] ==> :[lhs] * :[rhs]
+:[lhs] + :[rhs] ==> :[lhs] / :[rhs]
+:[lhs] + :[rhs] ==> :[lhs] % :[rhs]
+
+:[lhs] - :[rhs] ==> :[lhs] + :[rhs]
+:[lhs] - :[rhs] ==> :[lhs] * :[rhs]
+:[lhs] - :[rhs] ==> :[lhs] / :[rhs]
+:[lhs] - :[rhs] ==> :[lhs] % :[rhs]
+
+:[lhs] * :[rhs] ==> :[lhs] + :[rhs]
+:[lhs] * :[rhs] ==> :[lhs] - :[rhs]
+:[lhs] * :[rhs] ==> :[lhs] / :[rhs]
+:[lhs] * :[rhs] ==> :[lhs] % :[rhs]
+
+:[lhs] / :[rhs] ==> :[lhs] + :[rhs]
+:[lhs] / :[rhs] ==> :[lhs] - :[rhs]
+:[lhs] / :[rhs] ==> :[lhs] * :[rhs]
+:[lhs] / :[rhs] ==> :[lhs] % :[rhs]
+
+:[lhs] % :[rhs] ==> :[lhs] + :[rhs]
+:[lhs] % :[rhs] ==> :[lhs] - :[rhs]
+:[lhs] % :[rhs] ==> :[lhs] * :[rhs]
+:[lhs] % :[rhs] ==> :[lhs] / :[rhs]
+
+# Assignment operators with arithmetic
+:[lhs] += :[rhs] ==> :[lhs] -= :[rhs]
+:[lhs] += :[rhs] ==> :[lhs] *= :[rhs]
+:[lhs] += :[rhs] ==> :[lhs] /= :[rhs]
+:[lhs] += :[rhs] ==> :[lhs] %= :[rhs]
+
+:[lhs] -= :[rhs] ==> :[lhs] += :[rhs]
+:[lhs] -= :[rhs] ==> :[lhs] *= :[rhs]
+:[lhs] -= :[rhs] ==> :[lhs] /= :[rhs]
+:[lhs] -= :[rhs] ==> :[lhs] %= :[rhs]
+
+:[lhs] *= :[rhs] ==> :[lhs] += :[rhs]
+:[lhs] *= :[rhs] ==> :[lhs] -= :[rhs]
+:[lhs] *= :[rhs] ==> :[lhs] /= :[rhs]
+:[lhs] *= :[rhs] ==> :[lhs] %= :[rhs]
+
+:[lhs] /= :[rhs] ==> :[lhs] += :[rhs]
+:[lhs] /= :[rhs] ==> :[lhs] -= :[rhs]
+:[lhs] /= :[rhs] ==> :[lhs] *= :[rhs]
+:[lhs] /= :[rhs] ==> :[lhs] %= :[rhs]
+
+:[lhs] %= :[rhs] ==> :[lhs] += :[rhs]
+:[lhs] %= :[rhs] ==> :[lhs] -= :[rhs]
+:[lhs] %= :[rhs] ==> :[lhs] *= :[rhs]
+:[lhs] %= :[rhs] ==> :[lhs] /= :[rhs]
+
+# Increment/decrement operators
+:[var]++ ==> :[var]--
+:[var]-- ==> :[var]++
+:[var] = :[var] + 1 ==> :[var] = :[var] - 1
+:[var] = :[var] - 1 ==> :[var] = :[var] + 1
